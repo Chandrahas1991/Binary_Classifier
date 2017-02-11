@@ -1,11 +1,11 @@
 import numpy as np
-import scipy as sp
 from sklearn import preprocessing,metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+import matplotlib.pyplot as plt
 import pandas as pd
 
 np.set_printoptions(threshold=np.nan,suppress=True)
@@ -16,7 +16,8 @@ pd.set_option('display.width', 10000)
 
 #define some basic classifiers
 #logistic regression classifier
-def logistic_classifier(data_train, data_test, labels_train, labels_test):
+def logistic_regression_classifier(data_train, data_test, labels_train, labels_test):
+    print("Logistic Regression Classifier results : ")
     logit_model = LogisticRegression()
     #fit a model to the data
     logit_model.fit(data_train,labels_train)
@@ -25,11 +26,11 @@ def logistic_classifier(data_train, data_test, labels_train, labels_test):
     logit_predicted = logit_model.predict(data_test)
     #summarize the fit of the model
     print(metrics.classification_report(labels_test, logit_predicted))
-    print(metrics.confusion_matrix(labels_test, logit_predicted))
 
 
 #naive Bayes classifier
 def naive_bayes_classifier(data_train, data_test, labels_train, labels_test):
+    print("Naive Bayes Classifier results : ")
     gaussian_model = GaussianNB()
     # fit a model to the data
     gaussian_model.fit(data_train,labels_train)
@@ -38,11 +39,11 @@ def naive_bayes_classifier(data_train, data_test, labels_train, labels_test):
     gaussian_predicted = gaussian_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, gaussian_predicted))
-    print(metrics.confusion_matrix(labels_test, gaussian_predicted))
 
 
 #Use a K-nn classifier
 def knn_classifier(data_train, data_test, labels_train, labels_test):
+    print("K-nn Classifier results : ")
     knn_model = KNeighborsClassifier()
     # fit a model to the data
     knn_model.fit(data_train,labels_train)
@@ -51,12 +52,12 @@ def knn_classifier(data_train, data_test, labels_train, labels_test):
     knn_predicted = knn_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, knn_predicted))
-    print(metrics.confusion_matrix(labels_test, knn_predicted))
 
 
 #Use an SVM classifier
 def svm_classifier(data_train, data_test, labels_train, labels_test):
-    SVM_model = SVC()
+    print("SVM Classifier results : ")
+    SVM_model = SVC(kernel='rbf')
     # fit a model to the data
     SVM_model.fit(data_train,labels_train)
     print(SVM_model)
@@ -64,7 +65,6 @@ def svm_classifier(data_train, data_test, labels_train, labels_test):
     svm_predicted = SVM_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, svm_predicted))
-    print(metrics.confusion_matrix(labels_test, svm_predicted))
 
 
 if __name__ == '__main__':
@@ -81,7 +81,6 @@ if __name__ == '__main__':
     continous_columns = ['A2','A3','A8','A11','A14','A15']
 
     #Observation - some of the attributes were found to have the character '?' instead of the class. All these records have been removed below.
-    #columns containing '?' in the data = A1,A4,A5,A6,A7
     #observation - Categorical data is not present for all classes that have been mentioned in the document.
     #observation - No Data for 't' class in A4 attribute
 
@@ -94,7 +93,7 @@ if __name__ == '__main__':
     for col_index, col in df.iteritems():
         row_index = 0
         for element in col:
-            if( str(element) == '?'):
+            if(str(element) == '?'):
                 df.drop(row_index, axis=0, inplace=True)
             row_index += 1
         df.index = range(df.shape[0])
@@ -106,6 +105,16 @@ if __name__ == '__main__':
     df[category_columns] = df[category_columns].astype(str)
     df[continous_columns] = df[continous_columns].astype(float)
     df.A16 = df.A16.astype(str)
+
+
+    #drop outliers for A11
+    df.drop([116,44], axis =0,inplace=True)
+
+    # drop outliers for A14
+    df.drop(388, axis=0, inplace=True)
+
+    # drop outliers for A15
+    df.drop([6,29,304,65,127], axis=0, inplace=True)
 
     #shuffle the dataframe rows
     df.reindex(np.random.permutation(df.index))
@@ -125,33 +134,67 @@ if __name__ == '__main__':
     #create a numpy array from the dataframe
     feature_np_array = feature_df.values
     features_rows,features_cols = feature_np_array.shape
+    print("feature matrix size : " + str(feature_np_array.shape))
 
     #calcualte some basic stats about the unnormalized data
-    A2_max = np.max(feature_np_array[:,0:1])
-    A2_min = np.min(feature_np_array[:,0:1])
-    A2_mean = np.mean(feature_np_array[:,0:1])
+    A2 = feature_np_array[:,0:1]
+    A3 = feature_np_array[:,1:2]
+    A8 = feature_np_array[:,2:3]
+    A11 = feature_np_array[:,3:4]
+    A14 = feature_np_array[:,4:5]
+    A15 = feature_np_array[:,5:6]
 
-    A3_max = np.max(feature_np_array[:,1:2])
-    A3_min = np.min(feature_np_array[:,1:2])
-    A3_mean = np.mean(feature_np_array[:,1:2])
+    A2_max = np.max(A2)
+    A2_min = np.min(A2)
+    A2_mean = np.mean(A2)
 
-    A8_max = np.max(feature_np_array[:,2:3])
-    A8_min = np.min(feature_np_array[:,2:3])
-    A8_mean = np.mean(feature_np_array[:,2:3])
+    A3_max = np.max(A3)
+    A3_min = np.min(A3)
+    A3_mean = np.mean(A3)
 
-    A11_max = np.max(feature_np_array[:,3:4])
-    A11_min = np.min(feature_np_array[:,3:4])
-    A11_mean = np.mean(feature_np_array[:,3:4])
+    A8_max = np.max(A8)
+    A8_min = np.min(A8)
+    A8_mean = np.mean(A8)
 
-    A14_max = np.max(feature_np_array[:,4:5])
-    A14_min = np.min(feature_np_array[:,4:5])
-    A14_mean = np.mean(feature_np_array[:,4:5])
+    A11_max = np.max(A11)
+    A11_min = np.min(A11)
+    A11_mean = np.mean(A11)
 
-    A15_max = np.max(feature_np_array[:,5:6])
-    A15_min = np.min(feature_np_array[:,5:6])
-    A15_mean = np.mean(feature_np_array[:,5:6])
+    A14_max = np.max(A14)
+    A14_min = np.min(A14)
+    A14_mean = np.mean(A14)
 
-    '''
+    A15_max = np.max(A15)
+    A15_min = np.min(A15)
+    A15_mean = np.mean(A15)
+
+    #Plots
+    plt.figure(1)
+    plt.plot(range(features_rows),A2)
+    plt.ylabel('A2')
+
+    plt.figure(2)
+    plt.plot(range(features_rows),A3)
+    plt.ylabel('A3')
+
+    plt.figure(3)
+    plt.plot(range(features_rows),A8)
+    plt.ylabel('A8')
+
+    plt.figure(4)
+    plt.plot(range(features_rows),A11)
+    plt.ylabel('A11')
+
+    plt.figure(5)
+    plt.plot(range(features_rows), A14)
+    plt.ylabel('A14')
+
+    plt.figure(6)
+    plt.plot(range(features_rows), A15)
+    plt.ylabel('A15')
+    #plt.show()
+
+    #Stats about the continous data
     print("A2_max : " + str(A2_max))
     print("A2_min : " + str(A2_min))
     print("A2_mean : " + str(A2_mean))
@@ -175,14 +218,21 @@ if __name__ == '__main__':
     print("A15_max : " + str(A15_max))
     print("A15_min : " + str(A15_min))
     print("A15_mean : " + str(A15_mean))
-    '''
 
     #apply various data normalization techniques to represent the continuous data features efficiently
     #the categorical data need not be normalized since there are in 0's and 1's
 
+    # apply robust scaler
+    robust_scaler = preprocessing.RobustScaler()
+    feature_np_array_robust = robust_scaler.fit_transform(feature_np_array)
+
+    # apply standard scaler
+    standard_scaler = preprocessing.StandardScaler()
+    feature_np_array_standard = standard_scaler.fit_transform(feature_np_array)
+
     # Normalize the data to a value between 0 and 1
     min_max_scaler = preprocessing.MinMaxScaler()
-    feature_np_array_minmax = min_max_scaler.fit_transform(feature_np_array)
+    feature_np_array_minmax = min_max_scaler.fit_transform(feature_np_array_robust)
 
     #apply the L2 norm and generate a new feature set
     feature_np_array_normalized_l2 = preprocessing.normalize(feature_np_array, norm='l2')
@@ -190,97 +240,10 @@ if __name__ == '__main__':
     #apply the L1 norm and generate a new feature set
     feature_np_array_normalized_l1 = preprocessing.normalize(feature_np_array, norm='l1')
 
-
-    print("features after minimax scaler ----------------------------------------------------")
-    #print(feature_np_array_minmax[:,1:5])
-    print("features after L2 normalization --------------------------------------------------")
-    #print(feature_np_array_normalized_l2[:,1:5])
-    print("features after L1 normalization --------------------------------------------------")
-    #print(feature_np_array_normalized_l1[:,1:5])
-
-
     #split the processed feature set into training and test set
-    data_train, data_test, labels_train, labels_test = train_test_split(feature_np_array_minmax, class_labels, test_size=0.80, random_state=42)
+    data_train, data_test, labels_train, labels_test = train_test_split(feature_np_array_minmax, class_labels, test_size=0.30, random_state=42)
 
-
-
-
-'''
-with open('crx.DATA', '') as csvfile:
-     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-     for row in spamreader:
-        print (', '.join(row))
-
-
-f = open('crx.DATA', 'r')
-file_data  = f.read()
-print("file data type is : " + str(type(file_data)))
-#print("data is " + str(data))
-list_data = file_data.split()
-print("list_data type is : " + str(type(list_data)))
-print("data is " + str(list_data))
-#df_input = [i for i in data.split()]
-
-
-
-#dataframe = pd.DataFrame.from_records(list_data) #,columns= ['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15'])
-dataframe = pd.DataFrame.from_csv(file_data)
-print("data frame is : ")
-print(dataframe)
-'''
-#df.rename(index=str,columns={'0': 'A1', '1': 'A2','2': 'A3','3': 'A4','4': 'A5','5': 'A6','6': 'A7','7': 'A8','8': 'A9','9': 'A10','10': 'A11','11': 'A12','12': 'A13','13': 'A14','14': 'A15',15},inplace=True)
-#df.colums = ['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15']
-#df = pd.DataFrame(df, )
-#print(df.columns)
-#category_columns = [1,4,5,6,7,9,10,12,13]
-#category_data = pd.DataFrame(df,columns = category_columns)
-
-'''
-df = df[(df.A1 != '?') & (str(df.A2) != '?') & (str(df.A3) != '?') & (df.A4 != '?') & (df.A5 != '?') & (df.A6 != '?') &
-        (df.A7 != '?') & (str(df.A8) != '?') & (df.A9 != '?') & (df.A10 != '?') & (str(df.A11) != '?') & (df.A12 != '?') &
-        (df.A13 != '?') & (str(df.A14) != '?') & (str(df.A15) != '?') & (df.A16 != '?')]
-
-df.drop(df.index[[i,j]] for i,j in range(df.shape) and df.index[[i,j]] is '?')
-for j in df.columns:
-    for i in list(df.index):
-        if(df.j[i] == '?'):
-            df.drop
-
- print("row :" + str(type(row)))
-    print ("index :" + str(type(index)))
-    exit()
-
-
-        if(col_index in category_columns):
-            element = str(element)
-        if(col_index in continous_columns):
-            element = float(element)
-            #element = np.fromstring(element)
-
-a = 5.65
-print("type of a is " + str(type(a)))
-print("type of continous column is " + str(type(df.A2[3])))
-print("type of categorical column is " + str(type(df.A1[3])))
-print("element is : " + str(df.get_value('1','A1')))
-
-print("A2 1 : " + str(df.A2[1]))
-print(" A2 column data type is :" + str(type(df.A2[1])))
-print("A1 0 : " + str(df.A1[1]))
-print(" A15 column data type is :" + str(type(df.A15[0])))
-
-
-
-#remove rows with incorrect data
-#print("data type :: ")
-#print(df.dtypes)
-
-print("type of A15 is " + str(type(df.A2[0])))
-
-
-
-
-
-
-
-
-'''
+    logistic_regression_classifier(data_train, data_test, labels_train, labels_test)
+    naive_bayes_classifier(data_train, data_test, labels_train, labels_test)
+    knn_classifier(data_train, data_test, labels_train, labels_test)
+    svm_classifier(data_train, data_test, labels_train, labels_test)
