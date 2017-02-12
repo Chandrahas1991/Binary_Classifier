@@ -244,7 +244,7 @@ if __name__ == '__main__':
 
     # Normalize the data to a value between 0 and 1
     min_max_scaler = preprocessing.MinMaxScaler()
-    feature_np_array_minmax = min_max_scaler.fit_transform(feature_np_array_robust)
+    feature_np_array_minmax = min_max_scaler.fit_transform(feature_np_array)
 
     #apply the L2 norm and generate a new feature set
     feature_np_array_normalized_l2 = preprocessing.normalize(feature_np_array, norm='l2')
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     #split the processed feature set into training and test set
     data_train, data_test, labels_train, labels_test = train_test_split(feature_np_array_minmax, class_labels, test_size=0.20, random_state=42)
 
-
+    #Apply all four models to the data
     logistic_regression_classifier(data_train, data_test, labels_train, labels_test)
     naive_bayes_classifier(data_train, data_test, labels_train, labels_test)
     knn_classifier(data_train, data_test, labels_train, labels_test)

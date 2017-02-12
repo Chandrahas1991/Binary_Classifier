@@ -7,6 +7,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
 
 np.set_printoptions(threshold=np.nan,suppress=True)
 pd.set_option('display.height', 10000)
@@ -17,6 +18,7 @@ pd.set_option('display.width', 10000)
 #define some basic classifiers
 #logistic regression classifier
 def logistic_regression_classifier(data_train, data_test, labels_train, labels_test):
+    in_time = time.clock()
     print("Logistic Regression Classifier results : ")
     logit_model = LogisticRegression()
     #fit a model to the data
@@ -26,10 +28,12 @@ def logistic_regression_classifier(data_train, data_test, labels_train, labels_t
     logit_predicted = logit_model.predict(data_test)
     #summarize the fit of the model
     print(metrics.classification_report(labels_test, logit_predicted))
-
+    out_time = time.clock()
+    print("Logistic Regression runtime: " + str(out_time-in_time))
 
 #naive Bayes classifier
 def naive_bayes_classifier(data_train, data_test, labels_train, labels_test):
+    in_time = time.clock()
     print("Naive Bayes Classifier results : ")
     gaussian_model = GaussianNB()
     # fit a model to the data
@@ -39,12 +43,15 @@ def naive_bayes_classifier(data_train, data_test, labels_train, labels_test):
     gaussian_predicted = gaussian_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, gaussian_predicted))
+    out_time = time.clock()
+    print("Naive Bayes runtime: " + str(out_time - in_time))
 
 
 #Use a K-nn classifier
 def knn_classifier(data_train, data_test, labels_train, labels_test):
+    in_time = time.clock()
     print("K-nn Classifier results : ")
-    knn_model = KNeighborsClassifier()
+    knn_model = KNeighborsClassifier(n_neighbors=7)
     # fit a model to the data
     knn_model.fit(data_train,labels_train)
     print(knn_model)
@@ -52,10 +59,13 @@ def knn_classifier(data_train, data_test, labels_train, labels_test):
     knn_predicted = knn_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, knn_predicted))
+    out_time = time.clock()
+    print("K-nn runtime: " + str(out_time - in_time))
 
 
 #Use an SVM classifier
 def svm_classifier(data_train, data_test, labels_train, labels_test):
+    in_time = time.clock()
     print("SVM Classifier results : ")
     SVM_model = SVC(kernel='rbf')
     # fit a model to the data
@@ -65,6 +75,8 @@ def svm_classifier(data_train, data_test, labels_train, labels_test):
     svm_predicted = SVM_model.predict(data_test)
     # summarize the fit of the model
     print(metrics.classification_report(labels_test, svm_predicted))
+    out_time = time.clock()
+    print("SVM runtime: " + str(out_time - in_time))
 
 
 if __name__ == '__main__':
@@ -241,9 +253,13 @@ if __name__ == '__main__':
     feature_np_array_normalized_l1 = preprocessing.normalize(feature_np_array, norm='l1')
 
     #split the processed feature set into training and test set
-    data_train, data_test, labels_train, labels_test = train_test_split(feature_np_array_minmax, class_labels, test_size=0.30, random_state=42)
+    data_train, data_test, labels_train, labels_test = train_test_split(feature_np_array_minmax, class_labels, test_size=0.20, random_state=42)
+
 
     logistic_regression_classifier(data_train, data_test, labels_train, labels_test)
     naive_bayes_classifier(data_train, data_test, labels_train, labels_test)
     knn_classifier(data_train, data_test, labels_train, labels_test)
     svm_classifier(data_train, data_test, labels_train, labels_test)
+
+
+#################################################################################################################################################################
